@@ -1,0 +1,15 @@
+definition_version: 1
+native_app:
+   name: investintel
+   source_stage: stage_content.investintel_stage
+   artifacts:
+      - src: app/*
+        dest: ./
+      - python/open_ai_func.py
+   package:
+      name: investintel_package
+      scripts:
+         - scripts/shared_content.sql
+   application:
+      name: investintel
+      debug: false
