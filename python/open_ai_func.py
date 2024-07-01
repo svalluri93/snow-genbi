@@ -1,14 +1,37 @@
 import _snowflake
 from openai import OpenAI
 import json
+import simplejson as json
+from snowflake.snowpark import Session
+from snowflake.snowpark.context import get_active_session
+from snowflake.snowpark import Row
+import pandas as pd
 
-secret_object = _snowflake.get_generic_secret_string('cred')
 
-client = OpenAI( api_key = str(secret_object) )
+def init_app(session: Session, config) -> str:
+  """
+    Initializes function API endpoints with access to the secret and API integration.
 
-prompt = """ Answer questions asked by user """
+    Args:
+      session (Session): An active session object for authentication and communication.
+      config (Any): The configuration settings for the connector.
 
-def chat(system, user_assistant):
+    Returns:
+      str: A status message indicating the result of the provisioning process.
+   """
+  secret_name = config['secret_name']
+  external_access_integration_name = config['external_access_integration_name']
+
+  alter_function_sql = f'''
+    ALTER FUNCTION code_schema.open_ai_api(STRING) SET 
+    SECRETS = ('cred' = {secret_name}) 
+    EXTERNAL_ACCESS_INTEGRATIONS = ({external_access_integration_name})'''
+  
+  session.sql(alter_function_sql).collect()
+
+  return 'Snowflake genbi app initialized'
+
+def chat(client,system, user_assistant):
     assert isinstance(system, str), "`system` should be a string"
     assert isinstance(user_assistant, list), "`user_assistant` should be a list"
     system_msg = [{"role": "system", "content": system}]
@@ -30,6 +53,11 @@ def chat(system, user_assistant):
     return completion.choices[0].message.content
 
 def get_response(sentence): 
+    
+    secret_object = _snowflake.get_generic_secret_string('cred')
 
-    response_fn_test = chat(prompt,['''question is  - ''' + '''"''' + sentence + '''"'''+ '''.'''])
+    client = OpenAI( api_key = str(secret_object) )
+
+    prompt = """ Answer questions asked by user """
+    response_fn_test = chat(client,prompt,['''question is  - ''' + '''"''' + sentence + '''"'''+ '''.'''])
     return response_fn_test
