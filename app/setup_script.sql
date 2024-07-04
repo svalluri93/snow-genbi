@@ -50,3 +50,27 @@ end;
 $$;
 
 grant usage on procedure code_schema.update_reference(string, string, string) to application role invstintl_app_role;
+
+
+CREATE STREAMLIT IF NOT EXISTS code_schema.investintel
+  FROM '/streamlit'
+  MAIN_FILE = '/investintel.py'
+;
+
+GRANT USAGE ON STREAMLIT code_schema.investintel TO APPLICATION ROLE invstintl_app_role;
+
+CREATE TABLE IF NOT EXISTS CORE.CRED_DATA (
+  secret_name VARCHAR(1000), 
+  ext_access_integration_name VARCHAR(1000)
+ 
+);
+
+GRANT SELECT ON TABLE CORE.CRED_DATA TO APPLICATION ROLE invstintl_app_role;
+
+--INSERT INTO CORE.CRED_DATA VALUES('ML_APP.ML_MODELS.open_ai_api', 'openai_ext_access_int');
+
+--CREATE STREAMLIT IF NOT EXISTS CORE.CRED_DATA
+--  FROM '/streamlit'
+--  MAIN_FILE = '/investintel.py';
+--GRANT USAGE ON STREAMLIT CORE.CRED_DATA TO APPLICATION ROLE invstintl_app_role;
+
