@@ -1,0 +1,9 @@
+name: sf_env
+channels:
+- snowflake
+dependencies:
+- snowflake-native-apps-permission
+- tqdm
+- plotly
+- matplotlib
+- streamlit=1.31.1

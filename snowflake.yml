@@ -6,7 +6,9 @@ native_app:
       - src: app/*
         dest: ./
       - python/open_ai_func.py
-      - streamlit/investintel.py
+      - streamlit/investintel_config.py
+      - streamlit/pages/investintel_sql.py
+      - streamlit/pages/investintel_BI.py
    package:
       name: investintel_package
       scripts:
