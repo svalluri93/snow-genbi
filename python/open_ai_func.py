@@ -3,7 +3,7 @@ from openai import OpenAI
 import json
 import simplejson as json
 from snowflake.snowpark import Session
-from snowflake.snowpark.context import get_active_session
+# from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark import Row
 import pandas as pd
 
