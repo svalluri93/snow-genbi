@@ -3,10 +3,16 @@ import re
 import pandas as pd
 from snowflake.snowpark.context import get_active_session
 
-# Initialize the Snowflake session
+# 
+# 
+# 
+
+# 
 session = get_active_session()
 
-# Define the template for SQL query generation
+
+
+
 GEN_SQL = """
 You will be acting as an AI Snowflake SQL expert named GenSQL.
 Your goal is to give correct, executable SQL queries to users.
@@ -59,7 +65,8 @@ def escape_single_quotes(text):
 # Streamlit app main function
 if __name__ == "__main__":
     st.title("SQL Generator")
-
+    if 'snowflake_session' not in st.session_state:
+        st.session_state.snowflake_session = None
     # Prompt for user input and save
     if prompt := st.text_input("Ask Something"):
         # Generate the prompt for OpenAI API
@@ -70,6 +77,12 @@ if __name__ == "__main__":
         Please generate a relevant SQL query.
         """
         open_ai_resp_query = f"SELECT INVESTINTEL.CODE_SCHEMA.OPEN_AI_API('{escape_single_quotes(open_ai_prompt)}');"
+
+
+
+        if st.session_state.snowflake_session is None:
+            st.write("Initializing Snowflake session...")  # Optional message for initialization
+            st.session_state.snowflake_session = get_active_session() 
 
         # Execute the OpenAI API function
         try:
@@ -86,6 +99,10 @@ if __name__ == "__main__":
 
                 # Execute the generated SQL query and display the results
                 results = session.sql(generated_sql_query).to_pandas()
+
+                # Store the results in session state
+                st.session_state.GenSQL_op_df = results
+
                 st.dataframe(results)
             else:
                 # If it's a general response, display it as text
@@ -93,3 +110,4 @@ if __name__ == "__main__":
 
         except Exception as e:
             st.write(f"Error executing the generated SQL query: {e}")
+

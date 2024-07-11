@@ -3,7 +3,8 @@ from openai import OpenAI
 import json
 import simplejson as json
 from snowflake.snowpark import Session
-# from snowflake.snowpark.context import get_active_session
+from snowflake.snowpark.context import get_active_session
+
 from snowflake.snowpark import Row
 import pandas as pd
 
@@ -61,3 +62,6 @@ def get_response(sentence):
     prompt = """ Answer questions asked by user """
     response_fn_test = chat(client,prompt,['''question is  - ''' + '''"''' + sentence + '''"'''+ '''.'''])
     return response_fn_test
+
+
+

@@ -4,6 +4,7 @@ CREATE OR ALTER VERSIONED SCHEMA code_schema;
 GRANT USAGE ON SCHEMA code_schema TO APPLICATION ROLE invstintl_app_role;
 
 
+
 CREATE VIEW IF NOT EXISTS code_schema.NAV_DATA
   AS SELECT *
   FROM shared_data.NAV_DATA;

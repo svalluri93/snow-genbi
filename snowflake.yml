@@ -4,6 +4,7 @@ native_app:
    source_stage: stage_content.investintel_stage
    artifacts:
       - src: app/*
+      
         dest: ./
       - python/open_ai_func.py
       - streamlit/investintel_config.py

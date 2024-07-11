@@ -4,6 +4,16 @@ from snowflake.snowpark.context import get_active_session
 import pandas as pd
 import json
 
+
+# def init_app(session):
+#     init_statement = """
+#     CALL INVESTINTEL.code_schema.init_app(PARSE_JSON('{
+#     "secret_name": "ML_APP.ML_MODELS.open_ai_api",
+#     "external_access_integration_name": "openai_ext_access_int"
+#     }'));
+#     """
+#     session.sql(init_statement).execute()
+
 st.title("CREDENTIALS CONFIGURATION")
 
 session = get_active_session()
@@ -57,3 +67,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+   
