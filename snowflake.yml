@@ -8,6 +8,7 @@ native_app:
         dest: ./
       - python/open_ai_func.py
       - streamlit/investintel_config.py
+      - streamlit/environment.yml
       - streamlit/pages/investintel_sql.py
       - streamlit/pages/investintel_BI.py
    package:
