@@ -53,7 +53,7 @@ def get_cols():
     """
     return GEN_SQL.format(context=op)
 
-# Function to escape single quotes in the prompt
+
 def escape_single_quotes(text):
     return text.replace("'", "''")
 
@@ -62,9 +62,9 @@ if __name__ == "__main__":
     st.title("SQL Generator")
     if 'snowflake_session' not in st.session_state:
         st.session_state.snowflake_session = None
-    # Prompt for user input and save
+   
     if prompt := st.text_input("Ask Something"):
-        # Generate the prompt for OpenAI API
+       
         open_ai_prompt = f"""
         Based on the following context:
         {get_cols()}
@@ -76,33 +76,36 @@ if __name__ == "__main__":
 
 
         if st.session_state.snowflake_session is None:
-            st.write("Initializing Snowflake session...")  # Optional message for initialization
+            st.write("Initializing Snowflake session...")  
             st.session_state.snowflake_session = get_active_session() 
 
         # Execute the OpenAI API function
         try:
             open_ai_response = session.sql(open_ai_resp_query).collect()
-            open_ai_content = open_ai_response[0][0]  # Assuming the response content is returned in the first column of the first row
-
-            # Check if the response contains a SQL query
+            open_ai_content = open_ai_response[0][0]  
+            
             sql_match = re.search(r"```sql\n(.*)\n```", open_ai_content, re.DOTALL)
             if sql_match:
-                generated_sql_query = sql_match.group(1).strip()  # Strip to remove any leading/trailing whitespace
+                generated_sql_query = sql_match.group(1).strip()  
 
-                # Display the generated SQL query without a label
                 st.markdown(f"```sql\n{generated_sql_query}\n```")
 
-                # Execute the generated SQL query and display the results
+              
                 results = session.sql(generated_sql_query).to_pandas()
 
-                # Store the results in session state
+                
                 st.session_state.GenSQL_op_df = results
 
                 st.dataframe(results)
             else:
-                # If it's a general response, display it as text
+                
                 st.write(open_ai_content)
 
         except Exception as e:
             st.write(f"Error executing the generated SQL query: {e}")
+
+
+
+
+
 

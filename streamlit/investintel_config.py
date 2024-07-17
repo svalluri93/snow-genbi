@@ -23,12 +23,19 @@ def main():
     check_data = f"SELECT secret_name, ext_access_integration_name FROM CORE.CRED_DATA"
     result = session.sql(check_data).to_pandas()
     st.write(result, use_container_width=True)
+    
 
     st.write('Do you want to proceed with existing credentials or do you want to update')
     option = st.radio('choose an option', ('proceed with existing credentials', 'update'))
 
     if option == 'proceed with existing credentials':
-        if st.button('Proceed'):
+        proceed = st.button("proceed")
+        if proceed:
+            data['secret_name'] = secret_name
+            data['external_access_integration_name'] = external_access_integration_name
+            json_data = json.dumps(data)
+            update_open_ai_func_query = f"call investintel.code_schema.init_app(PARSE_JSON('" + json_data + f"'));"
+            app_init = session.sql(update_open_ai_func_query)
             st.write('Please navigate to investintel_sql')
 
     elif option == 'update':
@@ -67,6 +74,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 

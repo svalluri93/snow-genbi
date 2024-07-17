@@ -72,4 +72,3 @@ CREATE STREAMLIT IF NOT EXISTS code_schema.investintel
 ;
 
 GRANT USAGE ON STREAMLIT code_schema.investintel TO APPLICATION ROLE invstintl_app_role;
-
