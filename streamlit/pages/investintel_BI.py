@@ -66,7 +66,7 @@ def main():
     st.set_page_config(layout="wide", page_title="vizAI")
 
     if "GenSQL_op_df" not in st.session_state:
-        st.error('Run query in GenSQL to visualize')
+        st.error('Run query in investintel sql to visualize')
     else:
         datasets = st.session_state["GenSQL_op_df"]
         st.dataframe(datasets)
@@ -84,8 +84,8 @@ def main():
             answer = get_response(session, question_to_ask)
             answer = primer_code + answer 
             
-            st.markdown("### Generated Python Code:")
-            st.code(answer, language='python')
+            # st.markdown("### Generated Python Code:")     # rempve comment for see generated python code for charts
+            # st.code(answer, language='python')            # rempve comment for see generated python code for charts
             
             
             local_vars = {"datasets": datasets} 
