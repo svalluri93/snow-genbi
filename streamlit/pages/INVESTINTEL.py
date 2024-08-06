@@ -1,9 +1,13 @@
 import streamlit as st
 import re
 import pandas as pd
+from sys import exit
 from snowflake.snowpark.context import get_active_session
+import os
 
 session = get_active_session()
+
+
 
 def escape_single_quotes(prompt):
     return prompt.replace("'", "''")
@@ -102,54 +106,82 @@ def get_cols():
     """
     return GEN_SQL.format(context=op)
 
+@st.cache_data(show_spinner=False)
+def openai_query_build(open_ai_prompt):
+    open_ai_resp_query = f"SELECT INVESTINTEL.CODE_SCHEMA.OPEN_AI_API('{escape_single_quotes(open_ai_prompt)}');"
+    open_ai_response = session.sql(open_ai_resp_query).collect()
+    open_ai_content = open_ai_response[0][0]
+    return open_ai_content
+
+@st.cache_data(show_spinner=False)
+def openai_query_exec(open_ai_content):
+    sql_match = re.search(r"```sql\n(.*)\n```", open_ai_content, re.DOTALL)
+    if sql_match:
+        generated_sql_query = sql_match.group(1).strip()
+        #st.markdown(f"```sql\n{generated_sql_query}\n```")
+        results = session.sql(generated_sql_query).to_pandas()
+        st.session_state.GenSQL_op_df = results
+        st.session_state.sql_query = generated_sql_query
+        return results
+    
+    else:
+        st.write(open_ai_content)
+        exit(0)
+
 def escape_single_quotes(text):
     return text.replace("'", "''")
 
 # Streamlit app main function
 if __name__ == "__main__":
-    st.title("SQL Generator")
+
+    st.title("INVESTINTEL")
+
     if 'snowflake_session' not in st.session_state:
         st.session_state.snowflake_session = None
 
-    if prompt := st.text_input("Ask Something"):
+    prompt = st.text_input('Ask Something')
+
+    if prompt:
+
         open_ai_prompt = f"""
         Based on the following context:
         {get_cols()}
         The user asked: {escape_single_quotes(prompt)}
         Please generate a relevant SQL query.
         """
-        open_ai_resp_query = f"SELECT INVESTINTEL.CODE_SCHEMA.OPEN_AI_API('{escape_single_quotes(open_ai_prompt)}');"
+        #open_ai_resp_query = query_build(open_ai_prompt)
 
         if st.session_state.snowflake_session is None:
-            st.write("Initializing Snowflake session...")
+            #st.write("Initializing Snowflake session...")
             st.session_state.snowflake_session = get_active_session()
 
         # Execute the OpenAI API function
         try:
-            if "GenSQL_op_df" not in st.session_state:
-                open_ai_response = session.sql(open_ai_resp_query).collect()
-                open_ai_content = open_ai_response[0][0]
 
-                sql_match = re.search(r"```sql\n(.*)\n```", open_ai_content, re.DOTALL)
-                if sql_match:
-                    generated_sql_query = sql_match.group(1).strip()
+            #st.write('prev prompt: ' + os.environ.get('PREV_PROMPT','None'))
+            #st.write( 'current prompt : '+ prompt)
+            
+            if ("GenSQL_op_df" not in st.session_state) or (os.environ.get('PREV_PROMPT') != prompt):
+                #open_ai_response = session.sql(open_ai_resp_query).collect()
+                #open_ai_content = open_ai_response[0][0]
 
-                    st.markdown(f"```sql\n{generated_sql_query}\n```")
-
-                    results = session.sql(generated_sql_query).to_pandas()
-
-                    st.session_state.GenSQL_op_df = results
-
-                    st.dataframe(results)
+                open_ai_content = openai_query_build(open_ai_prompt)
+                results = openai_query_exec(open_ai_content)
+                #st.dataframe(results)
                 # if "GenSQL_op_df" not in st.session_state:
                 #     st.error('Run query in investintel sql to visualize')
                 # else:
                 #     datasets = st.session_state["GenSQL_op_df"]
                 #     # st.dataframe(datasets)
+            
+            query = st.session_state["sql_query"]
+            st.markdown(f"```sql\n{query}\n```")
             datasets = st.session_state["GenSQL_op_df"]
+            st.dataframe(datasets)
+
             chart_types = ["Bar Chart", "Line Chart", "Pie Chart","Area Chart","Histogram"]
             selected_chart = st.selectbox("What would you like to visualize?", chart_types)
-            go_btn = st.button("Go...")
+            go_btn = st.button("plot")
 
             if go_btn:
                 try:
@@ -165,13 +197,12 @@ if __name__ == "__main__":
                     local_vars = {"datasets": datasets}
                     try:
                         exec(answer, {"__builtins__": __builtins__}, local_vars)
+                        os.environ['PREV_PROMPT'] = prompt
                     except Exception as e:
                         st.error(f"Error executing the generated code: {e}")
 
                 except Exception as e:
                     st.error(f"Error: {e}")
-            else:
-                st.write(open_ai_content)
 
         except Exception as e:
-            st.write(f"Error executing the generated SQL query: {e}")
+            st.write(f"Error occured: {e}")

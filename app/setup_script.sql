@@ -68,7 +68,7 @@ grant usage on procedure code_schema.update_reference(string, string, string) to
 
 CREATE STREAMLIT IF NOT EXISTS code_schema.investintel
   FROM '/streamlit'
-  MAIN_FILE = '/investintel_config.py'
+  MAIN_FILE = '/CONFIGURATION.py'
 ;
 
 GRANT USAGE ON STREAMLIT code_schema.investintel TO APPLICATION ROLE invstintl_app_role;
