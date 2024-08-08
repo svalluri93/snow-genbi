@@ -50,6 +50,15 @@ def main():
 
 
         if not result.empty:
+            
+
+            #secret_name = result['secret_name'].iloc[0]
+            secret_name = result['SECRET_NAME'].values[0]
+            external_access_integration_name = result['EXT_ACCESS_INTEGRATION_NAME'].values[0]
+            #external_access_integration_name = result['secret_name'].iloc[0]
+
+            func_init(secret_name,external_access_integration_name)
+
             st.write('Credentials initialized , please navigate to investintel page or update your existing credentials by submitting below form')
 
             with st.form(key='update_form_2'):
