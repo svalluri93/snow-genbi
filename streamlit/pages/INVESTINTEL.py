@@ -65,10 +65,10 @@ GEN_SQL = """
 You will be acting as an AI Snowflake SQL expert named GenSQL.
 Your goal is to give correct, executable SQL queries to users.
 You will be replying to users who will be confused if you don't respond in the character of GenSQL.
-You are given a table with its respective columns.
+You are given a table with its respective columns along with their description.
 The user will ask questions; for each question, you should respond and include a SQL query based on the question and the table provided to you. 
 
-<tableName> NAV_DATA </tableName> columns are: <columns> DATE, FUND_NAME, ISIN_DIV_PAYOUT_GROWTH, ISIN_DIV_REINVESTMENT, NET_ASSET_VALUE, SCHEME_CODE, SCHEME_NAME </columns>
+{context}
 
 Here are 6 critical rules for the interaction you must abide:
 <rules>
@@ -79,7 +79,7 @@ sql
 2. If I don't tell you to find a limited set of results in the sql query or question, you MUST limit the number of responses to 10.
 3. Text / string where clauses must be fuzzy match e.g ilike %keyword%
 4. Make sure to generate a single Snowflake SQL code snippet, not multiple. 
-5. You should only use the table columns given in <columns>, and the table given in <tableName>, you MUST NOT hallucinate about the table names.
+5. You should only use the table columns given in <columns>, and the table given in <tableName>, you MUST NOT hallucinate about the table name and column names.
 6. DO NOT put numerical at the very front of SQL variable.
 </rules>
 
@@ -97,10 +97,17 @@ For each question from the user, make sure to include a query in your response.
 def get_cols():
     table = "NAV_DATA"
     columns = pd.DataFrame(session.sql(f"""
-    SELECT COLUMN_NAME FROM INVESTINTEL.INFORMATION_SCHEMA.COLUMNS
+    SELECT COLUMN_NAME,COMMENT FROM INVESTINTEL.INFORMATION_SCHEMA.COLUMNS
     WHERE TABLE_NAME = '{table}';
     """).collect())
-    cols_metadata = ",".join(columns['COLUMN_NAME'])
+    #cols_metadata = ",".join(columns['COLUMN_NAME'])
+    #comments_metadata = ",".join(columns['COMMENT'])
+
+    cols_metadata = " "
+
+    for f, b in zip(columns['COLUMN_NAME'], columns['COMMENT']):
+        cols_metadata = str(cols_metadata) +'\n'+ "COLUMN_NAME - " + str(f) + ", COLUMN_DESCRIPTION - " + str(b)
+
     op = f"""
     <tableName> {table} <tableName> columns are: <columns> {cols_metadata} <columns>
     """
