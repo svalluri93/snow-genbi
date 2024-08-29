@@ -33,6 +33,17 @@ CREATE OR REPLACE PROCEDURE code_schema.init_app(config variant)
 
 GRANT USAGE ON PROCEDURE code_schema.init_app(variant) TO APPLICATION ROLE invstintl_app_role;
 
+
+CREATE OR REPLACE PROCEDURE code_schema.init_app_hist(config variant)
+  RETURNS string
+  LANGUAGE python
+  runtime_version = '3.8'
+  packages = ('snowflake-snowpark-python', 'openai', 'simplejson')
+  imports = ('/python/open_ai_func.py')
+  handler = 'open_ai_func.init_app_hist';
+
+GRANT USAGE ON PROCEDURE code_schema.init_app_hist(variant) TO APPLICATION ROLE invstintl_app_role;
+
 CREATE OR REPLACE FUNCTION code_schema.open_ai_api(sentence STRING)
 RETURNS STRING
 LANGUAGE PYTHON
@@ -43,6 +54,16 @@ PACKAGES = ('snowflake-snowpark-python','openai','simplejson');
 
 GRANT USAGE ON FUNCTION code_schema.open_ai_api(STRING) TO APPLICATION ROLE invstintl_app_role;
 
+
+CREATE OR REPLACE FUNCTION code_schema.open_ai_api_hist(messages VARIANT)
+RETURNS STRING
+LANGUAGE PYTHON
+RUNTIME_VERSION = 3.11
+IMPORTS = ('/python/open_ai_func.py')
+HANDLER = 'open_ai_func.chat_with_history'
+PACKAGES = ('snowflake-snowpark-python','openai','simplejson');
+
+GRANT USAGE ON FUNCTION code_schema.open_ai_api_hist(VARIANT) TO APPLICATION ROLE invstintl_app_role;
 
 create or replace procedure code_schema.update_reference(ref_name string, operation string, ref_or_alias string)
 returns string

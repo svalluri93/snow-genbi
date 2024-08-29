@@ -16,7 +16,7 @@ def get_response(session, sentence):
     open_ai_prompt = f"""Generate Python Code Script. The script should only include code. no comments.
     When generating Python code ensure that you do not include Markdown formatting backticks within the script.
     Simply write the Python code directly without any backticks. based on the following description: "{sentence}",
-    please Use the Relevant Streamlit Function.do not use st.pyplot(fig) use st.@my_chart() adjest as per chart type and you can add lable as well. 
+    please Use the Relevant Streamlit Function.do not use st.pyplot(fig) use st.@my_chart() adjust as per chart type and you can add lable as well. 
     you can use st.map() as well.for pie charts only use fig = go.Figure(...) st.write(fig)"""
     open_ai_resp_query = f"SELECT INVESTINTEL.CODE_SCHEMA.OPEN_AI_API('{escape_single_quotes(open_ai_prompt)}');"
     result = session.sql(open_ai_resp_query).collect()
@@ -185,6 +185,7 @@ if __name__ == "__main__":
             st.markdown(f"```sql\n{query}\n```")
             datasets = st.session_state["GenSQL_op_df"]
             st.dataframe(datasets)
+            st.download_button(label="Download", data=datasets.to_csv(index=False,encoding='utf-8-sig'), file_name='query_result.csv')
 
             chart_types = ["Bar Chart", "Line Chart", "Pie Chart","Area Chart","Histogram"]
             selected_chart = st.selectbox("What would you like to visualize?", chart_types)

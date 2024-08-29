@@ -32,6 +32,30 @@ def init_app(session: Session, config) -> str:
 
   return 'Snowflake genbi app initialized'
 
+
+def init_app_hist(session: Session, config) -> str:
+  """
+    Initializes function API endpoints with access to the secret and API integration.
+
+    Args:
+      session (Session): An active session object for authentication and communication.
+      config (Any): The configuration settings for the connector.
+
+    Returns:
+      str: A status message indicating the result of the provisioning process.
+   """
+  secret_name = config['secret_name']
+  external_access_integration_name = config['external_access_integration_name']
+
+  alter_function_sql = f'''
+    ALTER FUNCTION code_schema.open_ai_api_hist(VARIANT) SET 
+    SECRETS = ('cred' = {secret_name}) 
+    EXTERNAL_ACCESS_INTEGRATIONS = ({external_access_integration_name})'''
+  
+  session.sql(alter_function_sql).collect()
+
+  return 'Snowflake genbi app initialized'
+
 def chat(client,system, user_assistant):
     assert isinstance(system, str), "`system` should be a string"
     assert isinstance(user_assistant, list), "`user_assistant` should be a list"
@@ -66,7 +90,22 @@ def get_response(sentence):
 
 
 
+def chat_with_history(messages):
+    
+    secret = _snowflake.get_generic_secret_string('cred')
+    client = OpenAI(api_key=secret)
 
+    llm = client.chat.completions.create(
+                model="gpt-4-turbo-preview",
+                messages=[
+                    {"role": m["role"], "content": m["content"]}
+                    for m in messages
+                ],
+                stream=False,
+            )
+    response = llm.choices[0].message.content
+
+    return response
 
 
 
