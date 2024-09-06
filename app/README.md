@@ -54,7 +54,7 @@ CREATE OR REPLACE SECRET SAMPLE_DB.SAMPLE_SCHEMA.OPENAI_SECRET
     object created in step 2
 
 ```
- CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION SAMPLE_DB.SAMPLE_SCHEMA.OPENAI_EXT_ACCESS_INT
+ CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION OPENAI_EXT_ACCESS_INT
  ALLOWED_NETWORK_RULES = (OPENAI_NETWORK_RULE)
  ALLOWED_AUTHENTICATION_SECRETS = (SAMPLE_DB.SAMPLE_SCHEMA.OPENAI_SECRET)
  ENABLED = true;
@@ -65,9 +65,9 @@ CREATE OR REPLACE SECRET SAMPLE_DB.SAMPLE_SCHEMA.OPENAI_SECRET
    Below Queries needs to be executed after every re-installation.
 
 ```
-GRANT USAGE ON DATABASE SAMPLE_DB TO APPLICATION INVESTINTEL;                                                   --- Database where the secret and external access integration are created
-GRANT USAGE ON SCHEMA SAMPLE_DB.SAMPLE_SCHEMA TO APPLICATION INVESTINTEL;                                       --- Schema where the secret and external access integration are created
-GRANT USAGE ON INTEGRATION SAMPLE_DB.SAMPLE_SCHEMA.OPENAI_EXT_ACCESS_INT TO APPLICATION INVESTINTEL;
+GRANT USAGE ON DATABASE SAMPLE_DB TO APPLICATION INVESTINTEL;                                                   --- Database where the secret is created
+GRANT USAGE ON SCHEMA SAMPLE_DB.SAMPLE_SCHEMA TO APPLICATION INVESTINTEL;                                       --- Schema where the secret is created
+GRANT USAGE ON INTEGRATION OPENAI_EXT_ACCESS_INT TO APPLICATION INVESTINTEL;
 GRANT READ ON SECRET SAMPLE_DB.SAMPLE_SCHEMA.OPENAI_SECRET TO APPLICATION INVESTINTEL;
 
 ```
@@ -75,8 +75,23 @@ GRANT READ ON SECRET SAMPLE_DB.SAMPLE_SCHEMA.OPENAI_SECRET TO APPLICATION INVEST
 5.) Once the application is installed navigate to the configuration page of the streamlit application and input the secret object created in step 2 and external access integration object created in step 3. 
      
 
-## Sample Questions
 
-1.) which schemes had the best avg NAV since last year
+## Sample Queries 
 
-2.) show me top 5 schemes with highest NAV as per latest date
+To help you get started, here are a few sample queries that can be asked within the Investintel application: 
+```
+1.) Which schemes had the best average NAV since last year from the max date? 
+```
+This query retrieves schemes with the highest average NAV performance over the last year. 
+```
+2.) Show me the top 5 schemes with the highest NAV as per the latest date. 
+```
+This query returns the top 5 schemes ranked by their NAV as of the most recent date. 
+```
+3.) What is the NAV of [Scheme Name] as per the latest date? 
+```
+Replace [Scheme Name] with the actual scheme you want to inquire about, and the system will return the latest NAV data for that scheme. 
+```
+4.) Compare the performance of [Scheme A] and [Scheme B] over the past 6 months from the max date
+```
+This query helps compare the NAV performance of two different mutual fund schemes over a specific time. 
